@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drive Passes – Active Pass Sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-bg-primary: #ffffff;
+      --color-content-primary: #191f1c;
+      --color-bg-action-primary: #2b8659;
+      --color-bg-neutral-secondary: rgba(0, 45, 30, 0.07);
+      --color-content-static-light: #ffffff;
+      --color-fills-primary: rgba(120, 120, 128, 0.20);
+      --color-bg-neutral-secondary-hard: rgba(0, 20, 13, 0.16);
+      --screen-margin: 24px;
+      --font-family: 'Inter', sans-serif;
+      --heading-s-size: 24px;
+      --heading-s-line-height: 30px;
+      --heading-s-letter-spacing: -0.48px;
+      --body-m-size: 16px;
+      --body-m-line-height: 24px;
+      --body-m-letter-spacing: -0.176px;
+      --body-l-size: 18px;
+      --body-l-compact-line-height: 22px;
+      --body-l-letter-spacing: -0.252px;
+      --button-radius: 9600px;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: #e5e7eb;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    /* Overlay */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      transition: opacity 0.25s ease;
+    }
+    .overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Bottom Sheet */
+    .sheet {
+      position: relative;
+      background: var(--color-bg-primary);
+      border-radius: 16px 16px 0 0;
+      width: 390px;
+      max-width: 100vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow: hidden;
+      transform: translateY(0);
+      transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .overlay.hidden .sheet {
+      transform: translateY(100%);
+    }
+
+    /* Drag Handle */
+    .drag-handle {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      padding: 6px 0;
+      border-radius: 16px 16px 0 0;
+      z-index: 1;
+    }
+    .drag-handle__bar {
+      width: 40px;
+      height: 6px;
+      background: var(--color-fills-primary);
+      border-radius: 100px;
+    }
+
+    /* Close Button */
+    .close-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: var(--button-radius);
+      z-index: 2;
+    }
+    .close-btn__inner {
+      width: 32px;
+      height: 32px;
+      background: var(--color-bg-neutral-secondary-hard);
+      border-radius: 9600px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Section Header */
+    .section-header {
+      padding: 20px var(--screen-margin) 16px;
+      width: 100%;
+    }
+    .section-header__title {
+      font-size: var(--heading-s-size);
+      font-weight: 600;
+      line-height: var(--heading-s-line-height);
+      letter-spacing: var(--heading-s-letter-spacing);
+      color: var(--color-content-primary);
+      font-feature-settings: 'cv03' 1, 'cv04' 1, 'lnum' 1, 'pnum' 1;
+    }
+
+    /* Body text */
+    .sheet-body {
+      padding: 0 var(--screen-margin);
+      width: 100%;
+    }
+    .sheet-body p {
+      font-size: var(--body-m-size);
+      font-weight: 400;
+      line-height: var(--body-m-line-height);
+      letter-spacing: var(--body-m-letter-spacing);
+      color: var(--color-content-primary);
+      font-feature-settings: 'cv03' 1, 'cv04' 1, 'lnum' 1, 'pnum' 1;
+    }
+
+    .spacer-16 { height: 16px; width: 100%; flex-shrink: 0; }
+
+    /* Button Stack */
+    .button-stack {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 16px var(--screen-margin);
+    }
+
+    .btn {
+      width: 100%;
+      min-height: 56px;
+      border-radius: var(--button-radius);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-family);
+      font-size: var(--body-l-size);
+      font-weight: 600;
+      line-height: var(--body-l-compact-line-height);
+      letter-spacing: var(--body-l-letter-spacing);
+      font-feature-settings: 'cv03' 1, 'cv04' 1;
+      padding: 4px 20px;
+      transition: opacity 0.15s ease, transform 0.1s ease;
+    }
+    .btn:active {
+      opacity: 0.8;
+      transform: scale(0.99);
+    }
+
+    .btn--primary {
+      background: var(--color-bg-action-primary);
+      color: var(--color-content-static-light);
+    }
+    .btn--secondary {
+      background: var(--color-bg-neutral-secondary);
+      color: var(--color-content-primary);
+    }
+
+    /* Home Indicator */
+    .home-indicator {
+      width: 100%;
+      height: 34px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 8px;
+    }
+    .home-indicator__bar {
+      width: 134px;
+      height: 5px;
+      background: rgba(0, 0, 0, 0.18);
+      border-radius: 100px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <div class="sheet">
+
+      <!-- Drag Handle -->
+      <div class="drag-handle" aria-hidden="true">
+        <div class="drag-handle__bar"></div>
+      </div>
+
+      <!-- Close Button -->
+      <button class="close-btn" aria-label="Close" onclick="closeSheet()">
+        <div class="close-btn__inner">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M3 3L13 13M13 3L3 13" stroke="#191f1c" stroke-width="1.75" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </button>
+
+      <!-- Section Header -->
+      <div class="section-header">
+        <h2 class="section-header__title" id="sheet-title">Your Ultimate pass starts soon</h2>
+      </div>
+
+      <!-- Body Text -->
+      <div class="sheet-body">
+        <p>Use your Basic pass until 30 Apr, 23:59. Your new Ultimate benefits begin immediately after.</p>
+      </div>
+
+      <!-- Spacer -->
+      <div class="spacer-16"></div>
+
+      <!-- Buttons -->
+      <div class="button-stack">
+        <button class="btn btn--primary" onclick="handleContinue()">Continue</button>
+        <button class="btn btn--secondary" onclick="closeSheet()">Cancel</button>
+      </div>
+
+      <!-- Home Indicator -->
+      <div class="home-indicator" aria-hidden="true">
+        <div class="home-indicator__bar"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function closeSheet() {
+      document.getElementById('overlay').classList.add('hidden');
+    }
+    function handleContinue() {
+      // TODO: proceed with pass upgrade
+      alert('Proceeding with pass upgrade…');
+    }
+    // Close on backdrop click
+    document.getElementById('overlay').addEventListener('click', function(e) {
+      if (e.target === this) closeSheet();
+    });
+  </script>
+
+</body>
+</html>
