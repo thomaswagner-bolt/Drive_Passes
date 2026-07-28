@@ -6062,7 +6062,7 @@ SUVORK5CYII=" alt="" draggable="false">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12h14" stroke="#191f1c" stroke-width="1.8" stroke-linecap="round"/><path class="faq-vert" d="M12 5v14" stroke="#191f1c" stroke-width="1.8" stroke-linecap="round"/></svg>
             </div>
           </div>
-          <p class="faq-answer">Your pass includes a certain amount of credit each month to use on Bolt Drive rentals. Pass credit only applies to vehicles operated by Bolt Drive.<br><br>Pass credit expires at the end of every month. If you have a work profile, any pass credit you have will also apply to work drives. Credit doesn't roll over, doesn't apply to Bolt Balance, and can't be transferred or cashed out.<br><br>If you run out of pass credit, your drives charge to your chosen payment method. Your other pass benefits remain active.</p>
+          <p class="faq-answer">Your pass includes a certain amount of credit each month to use on Bolt Drive rentals. Pass credit only applies to vehicles operated by Bolt Drive.<br><br>Pass credit expires at the same day of the following month (calculated from purchasing date). Credit doesn't roll over, doesn't apply to Bolt Balance, and can't be transferred or cashed out.<br><br>If you run out of pass credit, your drives charge to your chosen payment method. Your other pass benefits remain active.<br><br>If you have a work profile, any pass credit you have will also apply to work drives.</p>
           <div class="faq-divider"></div>
         </div>
 
@@ -7651,6 +7651,15 @@ SUVORK5CYII=" alt="" draggable="false">
     }
     const maxPassDiscount = getMaxPassDiscount();
 
+    // ── Drag-vs-click threshold ───────────────────
+    // Custom mouse-drag scroll/swipe handlers below swallow the click that
+    // follows a drag (so dragging a list doesn't also "click" an item under
+    // the cursor). Without a distance threshold, ordinary clicks register a
+    // 1px mousemove between mousedown/mouseup and get treated as a drag too,
+    // silently eating the click — that's why items sometimes need a second
+    // click to open. Require real movement before calling it a drag.
+    const DRAG_CLICK_THRESHOLD = 6; // px
+
     // ── Sheet height constants ────────────────────
     const PARTIAL_H  = 590;
     const FULL_H     = 793;
@@ -7804,7 +7813,8 @@ SUVORK5CYII=" alt="" draggable="false">
       });
       document.addEventListener('mousemove', e => {
         if (!drag) return;
-        vel = e.clientX - prevX; prevX = e.clientX; didDrag = true;
+        vel = e.clientX - prevX; prevX = e.clientX;
+        if (Math.abs(e.clientX - startX) > DRAG_CLICK_THRESHOLD) didDrag = true;
         applyPos(startSX - (e.clientX - startX));
       });
       document.addEventListener('mouseup', () => {
@@ -7846,7 +7856,8 @@ SUVORK5CYII=" alt="" draggable="false">
       });
       document.addEventListener('mousemove', e => {
         if (!drag) return;
-        vel = e.clientY - prevY; prevY = e.clientY; didDrag = true;
+        vel = e.clientY - prevY; prevY = e.clientY;
+        if (Math.abs(e.clientY - startY) > DRAG_CLICK_THRESHOLD) didDrag = true;
         el.scrollTop = startSY - (e.clientY - startY);
       });
       document.addEventListener('mouseup', () => {
@@ -7924,7 +7935,8 @@ SUVORK5CYII=" alt="" draggable="false">
         if (!drag) return;
         const now = Date.now(), dt = Math.max(now - prevT, 1);
         vel = (e.clientY - prevY) / dt;
-        prevY = e.clientY; prevT = now; didDrag = true;
+        prevY = e.clientY; prevT = now;
+        if (Math.abs(e.clientY - startY) > DRAG_CLICK_THRESHOLD) didDrag = true;
         applyVirtual(startVirtual - (e.clientY - startY));
       });
 
@@ -8830,7 +8842,8 @@ SUVORK5CYII=" alt="" draggable="false">
         if (!drag) return;
         const now = Date.now(); const dt = now - prevT || 1;
         vel = (e.clientY - prevY) / dt;
-        prevY = e.clientY; prevT = now; didDrag = true;
+        prevY = e.clientY; prevT = now;
+        if (Math.abs(e.clientY - startY) > DRAG_CLICK_THRESHOLD) didDrag = true;
         applyApVirtual(startVirtual - (e.clientY - startY));
       });
 
