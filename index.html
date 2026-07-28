@@ -594,15 +594,16 @@
       flex: 1;
     }
 
-    /* ── FAQs section header (pt-20 px-24 pb-8) ─── */
-    /* total: 20 + 25 + 8 = 53px */
+    /* ── FAQs section header (pt-24 px-24 pb-8) ─── */
+    /* total: 24 + 30 + 8 = 62px */
     .modal-faqs-header {
-      padding: 16px 24px 8px;
+      padding: 24px 24px 8px;
     }
     .modal-faqs-title {
       font-size: 24px; font-weight: 600;
       color: var(--color-primary);
-      line-height: 25px;
+      line-height: 30px;
+      letter-spacing: -0.48px;
       font-feature-settings: 'cv03' 1, 'cv04' 1, 'lnum' 1, 'pnum' 1;
     }
 
@@ -617,6 +618,7 @@
       font-size: 16px; font-weight: 400;
       color: var(--color-primary);
       line-height: 24px;
+      letter-spacing: -0.176px;
       font-feature-settings: 'cv03' 1, 'cv04' 1, 'lnum' 1, 'pnum' 1;
       flex: 1;
     }
@@ -629,6 +631,7 @@
       font-size: 14px; font-weight: 400;
       color: var(--color-primary);
       line-height: 20px;
+      letter-spacing: -0.084px;
       font-feature-settings: 'cv03' 1, 'cv04' 1, 'lnum' 1, 'pnum' 1;
     }
     .faq-item.open .faq-answer { display: block; }
@@ -1746,7 +1749,7 @@
        SETTINGS PANEL (outside phone frame)
     ═══════════════════════════════════════════════ */
     #sp-panel {
-      display: none;
+      display: none; /* hidden — toggle to 'block' to bring back the debug/simulation panel */
       position: fixed; top: 60px; left: 60px;
       width: 260px;
       background: #fff;
@@ -6046,7 +6049,7 @@ SUVORK5CYII=" alt="" draggable="false">
         <!-- Section divider -->
         <div class="ap-div"></div>
 
-        <!-- FAQs header: pt-20 + 25px title + pb-8 = 53px -->
+        <!-- FAQs header: pt-24 + 30px title + pb-8 = 62px -->
         <div class="modal-faqs-header">
           <p class="modal-faqs-title" data-i18n="faqsTitle">FAQs</p>
         </div>
@@ -6070,7 +6073,7 @@ SUVORK5CYII=" alt="" draggable="false">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12h14" stroke="#191f1c" stroke-width="1.8" stroke-linecap="round"/><path class="faq-vert" d="M12 5v14" stroke="#191f1c" stroke-width="1.8" stroke-linecap="round"/></svg>
             </div>
           </div>
-          <p class="faq-answer">All passes give you discounts on any pay-as-you-go, hourly, or daily rate that isn't already discounted. Discounts apply to every Bolt Drive vehicle in Germany. Discounts are applied at the end of your drive.<br><br>Pass discounts are valid for the whole month, no matter if you've used all your credit.</p>
+          <p class="faq-answer">All passes give you discounts on any pay-as-you-go, hourly, or daily rate. Discounts apply to every Bolt Drive vehicle in <span data-country>Germany</span>. Discounts are applied at the end of your drive.<br><br>Pass discounts are valid for the whole month, no matter if you've used all your credit.</p>
           <div class="faq-divider"></div>
         </div>
 
@@ -6081,7 +6084,7 @@ SUVORK5CYII=" alt="" draggable="false">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12h14" stroke="#191f1c" stroke-width="1.8" stroke-linecap="round"/><path class="faq-vert" d="M12 5v14" stroke="#191f1c" stroke-width="1.8" stroke-linecap="round"/></svg>
             </div>
           </div>
-          <p class="faq-answer">Pass discounts apply to all Bolt Drive cars and vans in Germany. They cover any pay-as-you-go, hourly, or daily rate that isn't already discounted.<br><br>Pass discounts don't apply to vehicles from partner providers.</p>
+          <p class="faq-answer">Pass discounts apply to all Bolt Drive cars and vans in <span data-country>Germany</span>. They cover any pay-as-you-go, hourly, or daily rate.<br><br>Pass discounts don't apply to vehicles from partner providers.</p>
           <div class="faq-divider"></div>
         </div>
 
@@ -6158,7 +6161,7 @@ SUVORK5CYII=" alt="" draggable="false">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12h14" stroke="#191f1c" stroke-width="1.8" stroke-linecap="round"/><path class="faq-vert" d="M12 5v14" stroke="#191f1c" stroke-width="1.8" stroke-linecap="round"/></svg>
             </div>
           </div>
-          <p class="faq-answer">Your pass is valid anywhere Bolt Drive vehicles are available in Germany. Pass benefits don't apply to vehicles from partner providers.</p>
+          <p class="faq-answer">Your pass is valid anywhere Bolt Drive vehicles are available in <span data-country>Germany</span>. Pass benefits don't apply to vehicles from partner providers.</p>
           <div class="faq-divider"></div>
         </div>
 
@@ -6259,7 +6262,7 @@ SUVORK5CYII=" alt="" draggable="false">
           <div class="ap-header-progress-wrap">
             <div class="ap-header-progress-fill" id="ap-header-progress-fill" style="width:100%"></div>
           </div>
-          <p class="ap-validity-text" id="ap-validity-text">Active in Germany. Renews DD Mon</p>
+          <p class="ap-validity-text" id="ap-validity-text">Active in <span data-country>Germany</span>. Renews DD Mon</p>
           <div class="ap-header-bot-pad"></div>
         </div>
 
@@ -7576,6 +7579,53 @@ SUVORK5CYII=" alt="" draggable="false">
   </div><!-- /iphone-frame -->
 
   <script>
+    // ── User country detection (based on browser geolocation) ──
+    // Falls back to 'Germany' until real location resolves, or if the
+    // user denies/lacks geolocation. Re-localizes on language switch.
+    let USER_COUNTRY = 'Germany';
+    let _userCoords = null;
+
+    function _applyUserCountry() {
+      document.querySelectorAll('[data-country]').forEach(el => { el.textContent = USER_COUNTRY; });
+    }
+
+    function _setUserCountry(name) {
+      if (!name || name === USER_COUNTRY) return;
+      const old = USER_COUNTRY;
+      USER_COUNTRY = name;
+      _applyUserCountry();
+      // Patch any validity text already rendered with the previous country name
+      document.querySelectorAll('#ap-validity-text, .modal-subtitle').forEach(el => {
+        if (el.textContent && el.textContent.includes(old)) {
+          el.textContent = el.textContent.split(old).join(USER_COUNTRY);
+        }
+      });
+    }
+
+    async function _reverseGeocodeCountry(lang) {
+      if (!_userCoords) return;
+      try {
+        const { latitude, longitude } = _userCoords;
+        const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=${(lang || 'en').toLowerCase()}`);
+        const data = await res.json();
+        if (data && data.countryName) _setUserCountry(data.countryName);
+      } catch (e) { /* network/API failure — keep current country */ }
+    }
+
+    function detectUserCountry() {
+      if (!('geolocation' in navigator)) return;
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          _userCoords = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+          _reverseGeocodeCountry(typeof currentLang !== 'undefined' ? currentLang : 'EN');
+        },
+        () => { /* permission denied or unavailable — keep fallback country */ },
+        { timeout: 8000, maximumAge: 600000 }
+      );
+    }
+
+    detectUserCountry();
+
     // ── Live time helper ─────────────────────────
     function liveTimeStr() {
       const now = new Date();
@@ -7648,7 +7698,7 @@ SUVORK5CYII=" alt="" draggable="false">
 
       const renewExp = activePurchaseDate ? getPassExpiryDate() : (() => { const d = getSimDate(); d.setDate(d.getDate() + 30); return d; })();
       const renewMonths = (SP_LANGS[currentLang]||SP_LANGS.EN).monthsLong;
-      document.querySelector('.modal-subtitle').textContent = `Valid in Germany. Renews ${renewExp.getDate()} ${renewMonths[renewExp.getMonth()]} ${renewExp.getFullYear()}`;
+      document.querySelector('.modal-subtitle').textContent = `Valid in ${USER_COUNTRY}. Renews ${renewExp.getDate()} ${renewMonths[renewExp.getMonth()]} ${renewExp.getFullYear()}`;
       document.getElementById('modal-scroll').scrollTop        = 0;
 
       // Update CTA label + state based on whether user already has an active pass
@@ -8183,7 +8233,7 @@ SUVORK5CYII=" alt="" draggable="false">
         passCancelled = true;
         const _thc2 = SP_LANGS[currentLang]||SP_LANGS.EN;
         const _exp2 = cancellationExpiry;
-        const _untilStr = `Valid in Germany until ${_exp2.getDate()} ${_thc2.monthsShort[_exp2.getMonth()]} ${_exp2.getFullYear()}. Doesn't renew.`;
+        const _untilStr = `Valid in ${USER_COUNTRY} until ${_exp2.getDate()} ${_thc2.monthsShort[_exp2.getMonth()]} ${_exp2.getFullYear()}. Doesn't renew.`;
 
         // List tile validity
         const apv = document.getElementById('active-pass-validity');
@@ -8217,7 +8267,7 @@ SUVORK5CYII=" alt="" draggable="false">
       const upcomingName = document.getElementById('upcoming-pass-title').textContent.trim();
       const currentName  = document.getElementById('active-pass-title').textContent.trim();
 
-      // Extract "DD Mon" from the validity text ("Valid in Germany. Renews DD Mon")
+      // Extract "DD Mon" from the validity text ("Valid in {country}. Renews DD Mon")
       const validity  = document.getElementById('active-pass-validity').textContent;
       const _renewKeywords = Object.values(SP_LANGS).map(l => l.renews||'').concat(Object.values(SP_LANGS).map(l => l.ends||''));
       const _renewPattern = new RegExp('(?:' + [...new Set(_renewKeywords.filter(Boolean))].map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|') + '|Renews|Ends) (\\d+ \\S+)');
@@ -8412,9 +8462,9 @@ SUVORK5CYII=" alt="" draggable="false">
       document.getElementById('upcoming-pass-title').textContent  = plan;
       document.getElementById('upcoming-pass-starts').textContent = 'Starts as soon as your current pass ends';
 
-      // Update active pass validity text to "Valid in Germany until ..."
+      // Update active pass validity text to "Valid in {country} until ..."
       const longMonths = (SP_LANGS[currentLang]||SP_LANGS.EN).monthsLong;
-      const untilStr = `Valid in Germany until ${startDate.getDate()} ${longMonths[startDate.getMonth()]} ${startDate.getFullYear()}`;
+      const untilStr = `Valid in ${USER_COUNTRY} until ${startDate.getDate()} ${longMonths[startDate.getMonth()]} ${startDate.getFullYear()}`;
       const apv = document.getElementById('active-pass-validity');
       if (apv) { apv.textContent = untilStr; apv.style.color = '#9e5b00'; }
       const apValidity = document.getElementById('ap-validity-text');
@@ -8441,8 +8491,8 @@ SUVORK5CYII=" alt="" draggable="false">
       const exp = getPassExpiryDate();
       const months = (SP_LANGS[currentLang]||SP_LANGS.EN).monthsLong;
       const validity = upcomingPlanKey
-        ? `Valid in Germany until ${exp.getDate()} ${months[exp.getMonth()]} ${exp.getFullYear()}`
-        : `Valid in Germany. Renews ${exp.getDate()} ${months[exp.getMonth()]} ${exp.getFullYear()}`;
+        ? `Valid in ${USER_COUNTRY} until ${exp.getDate()} ${months[exp.getMonth()]} ${exp.getFullYear()}`
+        : `Valid in ${USER_COUNTRY}. Renews ${exp.getDate()} ${months[exp.getMonth()]} ${exp.getFullYear()}`;
 
       // Populate text (credits start at 0 — will dial up)
       document.getElementById('active-pass-title').textContent    = d.title;
@@ -8527,7 +8577,7 @@ SUVORK5CYII=" alt="" draggable="false">
 
       // Validity
       const validityEl = document.getElementById('ap-validity-text');
-      validityEl.textContent = 'Valid in Germany. Starts automatically after your current pass ends';
+      validityEl.textContent = `Valid in ${USER_COUNTRY}. Starts automatically after your current pass ends`;
       validityEl.className = 'ap-validity-text';
 
       // Hide savings banner
@@ -8601,13 +8651,13 @@ SUVORK5CYII=" alt="" draggable="false">
       const validityEl = document.getElementById('ap-validity-text');
       { const _tv = SP_LANGS[currentLang]||SP_LANGS.EN;
         if (passCancelled) {
-          validityEl.textContent = `Valid in Germany until ${dateStr}. Doesn't renew.`;
+          validityEl.textContent = `Valid in ${USER_COUNTRY} until ${dateStr}. Doesn't renew.`;
           validityEl.className = 'ap-validity-text orange';
         } else if (upcomingPlanKey) {
-          validityEl.textContent = `Valid in Germany until ${dateStr}`;
+          validityEl.textContent = `Valid in ${USER_COUNTRY} until ${dateStr}`;
           validityEl.className = 'ap-validity-text orange';
         } else {
-          validityEl.textContent = `${_tv.activeInGermany} ${_tv.renews} ${dateStr}`;
+          validityEl.textContent = `${_tv.activeIn} ${USER_COUNTRY}. ${_tv.renews} ${dateStr}`;
           validityEl.className = 'ap-validity-text';
         }
         validityEl.style.color = '';
@@ -8722,7 +8772,7 @@ SUVORK5CYII=" alt="" draggable="false">
         cancellationExpiry = null;
         const validityEl = document.getElementById('active-pass-validity');
         if (validityEl) {
-          validityEl.textContent = validityEl.textContent.replace('Valid in Germany. Ends', 'Valid in Germany. Renews');
+          validityEl.textContent = validityEl.textContent.replace('. Ends', '. Renews');
           validityEl.style.color = '';
         }
         const d = activePassData[activePlanKey] || activePassData.Basic;
@@ -8835,7 +8885,7 @@ SUVORK5CYII=" alt="" draggable="false">
         if (validityEl) {
           const _thc = SP_LANGS[currentLang]||SP_LANGS.EN;
           const _exp = cancellationExpiry;
-          validityEl.textContent = `Valid in Germany until ${_exp.getDate()} ${_thc.monthsShort[_exp.getMonth()]} ${_exp.getFullYear()}`;
+          validityEl.textContent = `Valid in ${USER_COUNTRY} until ${_exp.getDate()} ${_thc.monthsShort[_exp.getMonth()]} ${_exp.getFullYear()}`;
           validityEl.style.color = '#9e5b00';
         }
 
@@ -9393,7 +9443,7 @@ SUVORK5CYII=" alt="" draggable="false">
         allCreditsUsed:'Monthly credit used up', creditsLeft:'of credits left',
         savedSoFar:'You saved {{amount}} so far', savedOnDrives:'You saved {{amount}} on {{drives}} drives so far',
         nextCharge:'Next charge', failedCharge:'Payment attempted',
-        activeInGermany:'Active in Germany.', renews:'Renews', ends:'Ends',
+        activeIn:'Active in', renews:'Renews', ends:'Ends',
         creditsPerMonth:'{{amount}} of credit per month',
         passWord:'pass',
         monthsShort:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
@@ -9436,7 +9486,7 @@ SUVORK5CYII=" alt="" draggable="false">
         allCreditsUsed:'Alle Credits verbraucht', creditsLeft:'Credits übrig',
         savedSoFar:'Du hast bisher {{amount}} gespart', savedOnDrives:'Du hast {{amount}} bei {{drives}} Fahrten bisher gespart',
         nextCharge:'Nächste Abbuchung', failedCharge:'Fehlgeschlagene Zahlung',
-        activeInGermany:'Aktiv in Deutschland.', renews:'Verlängert sich am', ends:'Endet am',
+        activeIn:'Aktiv in', renews:'Verlängert sich am', ends:'Endet am',
         creditsPerMonth:'{{amount}} Credits pro Monat',
         passWord:'Pass',
         monthsShort:['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'],
@@ -9479,7 +9529,7 @@ SUVORK5CYII=" alt="" draggable="false">
         allCreditsUsed:'Kõik krediidid kasutatud', creditsLeft:'krediiti alles',
         savedSoFar:'Oled seni säästnud {{amount}}', savedOnDrives:'Oled seni säästnud {{amount}} {{drives}} sõidu pealt',
         nextCharge:'Järgmine debiit', failedCharge:'Ebaõnnestunud makse',
-        activeInGermany:'Aktiivne Saksamaal.', renews:'Uueneb', ends:'Lõpeb',
+        activeIn:'Aktiivne', renews:'Uueneb', ends:'Lõpeb',
         creditsPerMonth:'{{amount}} krediiti kuus',
         passWord:'pääse',
         monthsShort:['jaan','veeb','märts','apr','mai','juuni','juuli','aug','sept','okt','nov','dets'],
@@ -9522,7 +9572,7 @@ SUVORK5CYII=" alt="" draggable="false">
         allCreditsUsed:'Visi kredīti izmantoti', creditsLeft:'kredīti atlikuši',
         savedSoFar:'Jūs esat ietaupījis {{amount}} līdz šim', savedOnDrives:'Jūs esat ietaupījis {{amount}} {{drives}} braucienos līdz šim',
         nextCharge:'Nākamā iekasēšana', failedCharge:'Neizdevies maksājums',
-        activeInGermany:'Aktīvs Vācijā.', renews:'Atjaunojas', ends:'Beidzas',
+        activeIn:'Aktīvs', renews:'Atjaunojas', ends:'Beidzas',
         creditsPerMonth:'{{amount}} kredīti mēnesī',
         passWord:'pase',
         monthsShort:['Jan','Feb','Mar','Apr','Mai','Jūn','Jūl','Aug','Sep','Okt','Nov','Dec'],
@@ -9565,7 +9615,7 @@ SUVORK5CYII=" alt="" draggable="false">
         allCreditsUsed:'Visi kreditai panaudoti', creditsLeft:'kreditų liko',
         savedSoFar:'Sutaupėte {{amount}} iki šiol', savedOnDrives:'Sutaupėte {{amount}} per {{drives}} kelionių iki šiol',
         nextCharge:'Kitas mokestis', failedCharge:'Nepavykęs mokėjimas',
-        activeInGermany:'Aktyvus Vokietijoje.', renews:'Atnaujinama', ends:'Baigiasi',
+        activeIn:'Aktyvus', renews:'Atnaujinama', ends:'Baigiasi',
         creditsPerMonth:'{{amount}} kreditų per mėnesį',
         passWord:'pasas',
         monthsShort:['sau','vas','kov','bal','geg','bir','lie','rgp','rgs','spa','lap','grd'],
@@ -9608,7 +9658,7 @@ SUVORK5CYII=" alt="" draggable="false">
         allCreditsUsed:'Wszystkie kredyty wykorzystane', creditsLeft:'kredytów pozostało',
         savedSoFar:'Zaoszczędziłeś {{amount}} do tej pory', savedOnDrives:'Zaoszczędziłeś {{amount}} podczas {{drives}} przejazdów',
         nextCharge:'Następne obciążenie', failedCharge:'Nieudana płatność',
-        activeInGermany:'Aktywny w Niemczech.', renews:'Odnawia się', ends:'Kończy się',
+        activeIn:'Aktywny w', renews:'Odnawia się', ends:'Kończy się',
         creditsPerMonth:'{{amount}} kredytów miesięcznie',
         passWord:'karnet',
         monthsShort:['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru'],
@@ -9651,7 +9701,7 @@ SUVORK5CYII=" alt="" draggable="false">
         allCreditsUsed:'Toate creditele utilizate', creditsLeft:'credite rămase',
         savedSoFar:'Ați economisit {{amount}} până acum', savedOnDrives:'Ai economisit {{amount}} pe {{drives}} curse până acum',
         nextCharge:'Următoarea taxare', failedCharge:'Plată eșuată',
-        activeInGermany:'Activ în Germania.', renews:'Se reînnoiește', ends:'Se termină',
+        activeIn:'Activ în', renews:'Se reînnoiește', ends:'Se termină',
         creditsPerMonth:'{{amount}} credite pe lună',
         passWord:'abonament',
         monthsShort:['ian','feb','mar','apr','mai','iun','iul','aug','sep','oct','nov','dec'],
@@ -9694,7 +9744,7 @@ SUVORK5CYII=" alt="" draggable="false">
         allCreditsUsed:'Kaikki krediitit käytetty', creditsLeft:'krediittiä jäljellä',
         savedSoFar:'Olet säästänyt {{amount}} tähän mennessä', savedOnDrives:'Olet säästänyt {{amount}} {{drives}} ajolla tähän mennessä',
         nextCharge:'Seuraava veloitus', failedCharge:'Epäonnistunut maksu',
-        activeInGermany:'Aktiivinen Saksassa.', renews:'Uusiutuu', ends:'Päättyy',
+        activeIn:'Aktiivinen', renews:'Uusiutuu', ends:'Päättyy',
         creditsPerMonth:'{{amount}} krediittiä kuukaudessa',
         passWord:'passi',
         monthsShort:['tammi','helmi','maalis','huhti','touko','kesä','heinä','elo','syys','loka','marras','joulu'],
@@ -9737,7 +9787,7 @@ SUVORK5CYII=" alt="" draggable="false">
         allCreditsUsed:'Všechny kredity využity', creditsLeft:'kreditů zbývá',
         savedSoFar:'Ušetřili jste {{amount}} dosud', savedOnDrives:'Ušetřili jste {{amount}} za {{drives}} jízd dosud',
         nextCharge:'Příští účtování', failedCharge:'Neúspěšná platba',
-        activeInGermany:'Aktivní v Německu.', renews:'Obnovuje se', ends:'Končí',
+        activeIn:'Aktivní v', renews:'Obnovuje se', ends:'Končí',
         creditsPerMonth:'{{amount}} kreditů měsíčně',
         passWord:'pas',
         monthsShort:['led','úno','bře','dub','kvě','čvn','čvc','srp','zář','říj','lis','pro'],
@@ -9780,7 +9830,7 @@ SUVORK5CYII=" alt="" draggable="false">
         allCreditsUsed:'Усі кредити використано', creditsLeft:'кредитів залишилось',
         savedSoFar:'Ви зекономили {{amount}} дотепер', savedOnDrives:'Ви зекономили {{amount}} за {{drives}} поїздок дотепер',
         nextCharge:'Наступне списання', failedCharge:'Невдалий платіж',
-        activeInGermany:'Активний у Німеччині.', renews:'Поновлюється', ends:'Закінчується',
+        activeIn:'Активний у', renews:'Поновлюється', ends:'Закінчується',
         creditsPerMonth:'{{amount}} кредитів на місяць',
         passWord:'пропуск',
         monthsShort:['січ','лют','бер','кві','тра','чер','лип','сер','вер','жов','лис','гру'],
@@ -9941,8 +9991,8 @@ SUVORK5CYII=" alt="" draggable="false">
         const apv2 = document.getElementById('active-pass-validity');
         if (apv2) {
           apv2.textContent = (passCancelled || upcomingPlanKey)
-            ? `Valid in Germany until ${expLabel}`
-            : `Valid in Germany. ${_tsd.renews} ${expLabel}`;
+            ? `Valid in ${USER_COUNTRY} until ${expLabel}`
+            : `Valid in ${USER_COUNTRY}. ${_tsd.renews} ${expLabel}`;
           apv2.style.color = '';
         }
 
@@ -9950,8 +10000,8 @@ SUVORK5CYII=" alt="" draggable="false">
         const apValidity = document.getElementById('ap-validity-text');
         if (apValidity) {
           apValidity.textContent = (passCancelled || upcomingPlanKey)
-            ? `Valid in Germany until ${expLabel}`
-            : `${_tsd.activeInGermany} ${_tsd.renews} ${expLabel}`;
+            ? `Valid in ${USER_COUNTRY} until ${expLabel}`
+            : `${_tsd.activeIn} ${USER_COUNTRY}. ${_tsd.renews} ${expLabel}`;
           apValidity.className = (passCancelled || upcomingPlanKey) ? 'ap-validity-text orange' : 'ap-validity-text';
           apValidity.style.color = '';
         }
@@ -10204,7 +10254,7 @@ SUVORK5CYII=" alt="" draggable="false">
         if (validityEl) {
           const _thc = SP_LANGS[currentLang] || SP_LANGS.EN;
           const _exp = cancellationExpiry;
-          validityEl.textContent = `Valid in Germany until ${_exp.getDate()} ${_thc.monthsShort[_exp.getMonth()]} ${_exp.getFullYear()}`;
+          validityEl.textContent = `Valid in ${USER_COUNTRY} until ${_exp.getDate()} ${_thc.monthsShort[_exp.getMonth()]} ${_exp.getFullYear()}`;
           validityEl.style.color = '#9e5b00';
         }
         const cancelledPlan = activePassData[activePlanKey] || activePassData.Basic;
@@ -10236,6 +10286,8 @@ SUVORK5CYII=" alt="" draggable="false">
       });
       // Re-apply translations to currently visible dynamic content
       _i18nRefreshDynamic();
+      // Re-localize the detected country name to the new language
+      _reverseGeocodeCountry(lang);
     }
 
     function _i18nRefreshDynamic() {
