@@ -6073,7 +6073,7 @@ SUVORK5CYII=" alt="" draggable="false">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12h14" stroke="#191f1c" stroke-width="1.8" stroke-linecap="round"/><path class="faq-vert" d="M12 5v14" stroke="#191f1c" stroke-width="1.8" stroke-linecap="round"/></svg>
             </div>
           </div>
-          <p class="faq-answer">All passes give you discounts on any pay-as-you-go, hourly, or daily rate. Discounts apply to every Bolt Drive vehicle in <span data-country>Germany</span>. Discounts are applied at the end of your drive.<br><br>Pass discounts are valid for the whole month, no matter if you've used all your credit.</p>
+          <p class="faq-answer">All passes give you discounts on any pay-as-you-go, hourly, or daily rate. Discounts apply to every Bolt Drive vehicle in <span data-country>Germany</span>. Discounts are applied at the end of your drive, after other discounts and fees apply.<br><br>Pass discounts are valid for the whole month, no matter if you've used all your credit.</p>
           <div class="faq-divider"></div>
         </div>
 
@@ -7579,10 +7579,25 @@ SUVORK5CYII=" alt="" draggable="false">
   </div><!-- /iphone-frame -->
 
   <script>
+    // ── Forced market override ──────────────────────────────────
+    // Geolocation + the language dropdown don't work in every preview
+    // context (denied permission, blocked API, no interactive settings
+    // panel). Append ?market=CZ or ?market=LT to the URL to force that
+    // market's language + country name outright, bypassing both.
+    // Combine with the existing ?state= pass-state param, e.g.:
+    //   index.html?market=CZ&state=basic-active
+    //   index.html?market=LT&state=standard-active
+    const SP_MARKETS = {
+      CZ: { lang: 'CS', country: 'Czech Republic' },
+      LT: { lang: 'LT', country: 'Lithuania' }
+    };
+    const FORCED_MARKET = SP_MARKETS[(new URLSearchParams(window.location.search).get('market') || '').toUpperCase()] || null;
+
     // ── User country detection (based on browser geolocation) ──
     // Falls back to 'Germany' until real location resolves, or if the
     // user denies/lacks geolocation. Re-localizes on language switch.
-    let USER_COUNTRY = 'Germany';
+    // Skipped entirely when a market is forced via ?market=.
+    let USER_COUNTRY = FORCED_MARKET ? FORCED_MARKET.country : 'Germany';
     let _userCoords = null;
 
     function _applyUserCountry() {
@@ -7613,6 +7628,7 @@ SUVORK5CYII=" alt="" draggable="false">
     }
 
     function detectUserCountry() {
+      if (FORCED_MARKET) return; // country name is fixed by ?market=
       if (!('geolocation' in navigator)) return;
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -9882,8 +9898,13 @@ SUVORK5CYII=" alt="" draggable="false">
       }
       // Set slider state based on active pass
       spRefreshCreditsSlider();
-      // Apply default language (DE)
-      spSetLanguage('EN');
+      // Apply default language (EN), or the market forced via ?market=
+      spSetLanguage(FORCED_MARKET ? FORCED_MARKET.lang : 'EN');
+      if (FORCED_MARKET) {
+        _applyUserCountry(); // re-assert forced country name over any i18n re-render
+        const langSelect = document.getElementById('sp-lang-select');
+        if (langSelect) langSelect.value = FORCED_MARKET.lang;
+      }
     })();
 
     function spRefreshCreditsSlider() {
