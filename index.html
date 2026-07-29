@@ -7587,11 +7587,52 @@ SUVORK5CYII=" alt="" draggable="false">
     // Combine with the existing ?state= pass-state param, e.g.:
     //   index.html?market=CZ&state=basic-active
     //   index.html?market=LT&state=standard-active
+    // Both markets stay in English (no translation) — only the country
+    // name changes. CZ additionally displays amounts in Czech Koruna
+    // instead of Euro (Lithuania already uses the Euro).
     const SP_MARKETS = {
-      CZ: { lang: 'CS', country: 'Czech Republic' },
-      LT: { lang: 'LT', country: 'Lithuania' }
+      CZ: { lang: 'EN', country: 'Czech Republic', currency: 'CZK' },
+      LT: { lang: 'EN', country: 'Lithuania' }
     };
     const FORCED_MARKET = SP_MARKETS[(new URLSearchParams(window.location.search).get('market') || '').toUpperCase()] || null;
+
+    // ── € → Kč conversion (CZ market only) ────────────────────────
+    // Rather than rewriting every price template literal in the file,
+    // this converts "€X" / "€X.XX" text wherever it's rendered in the
+    // DOM — covering static markup and any future dynamic price
+    // updates alike — using an approximate EUR→CZK rate.
+    const EUR_TO_CZK_RATE = 24.2;
+    function _convertCurrencyText(str) {
+      return str.replace(/€\s?(\d+(?:\.\d+)?)/g, (match, num) => {
+        const czk = Math.round(parseFloat(num) * EUR_TO_CZK_RATE);
+        return `${czk.toLocaleString('cs-CZ')} Kč`;
+      });
+    }
+    function _convertCurrencyInNode(node) {
+      if (!node) return;
+      if (node.nodeType === Node.TEXT_NODE) {
+        if (node.nodeValue && node.nodeValue.indexOf('€') !== -1) {
+          node.nodeValue = _convertCurrencyText(node.nodeValue);
+        }
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        if (node.tagName === 'SCRIPT' || node.tagName === 'STYLE') return;
+        node.childNodes.forEach(_convertCurrencyInNode);
+      }
+    }
+    function enableCzkCurrencyConversion() {
+      _convertCurrencyInNode(document.body);
+      new MutationObserver((mutations) => {
+        mutations.forEach(m => {
+          if (m.type === 'characterData') {
+            if (m.target.nodeValue && m.target.nodeValue.indexOf('€') !== -1) {
+              m.target.nodeValue = _convertCurrencyText(m.target.nodeValue);
+            }
+          } else if (m.type === 'childList') {
+            m.addedNodes.forEach(_convertCurrencyInNode);
+          }
+        });
+      }).observe(document.body, { childList: true, subtree: true, characterData: true });
+    }
 
     // ── User country detection (based on browser geolocation) ──
     // Falls back to 'Germany' until real location resolves, or if the
@@ -9904,6 +9945,7 @@ SUVORK5CYII=" alt="" draggable="false">
         _applyUserCountry(); // re-assert forced country name over any i18n re-render
         const langSelect = document.getElementById('sp-lang-select');
         if (langSelect) langSelect.value = FORCED_MARKET.lang;
+        if (FORCED_MARKET.currency === 'CZK') enableCzkCurrencyConversion();
       }
     })();
 
