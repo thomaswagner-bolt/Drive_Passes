@@ -9415,15 +9415,18 @@ SUVORK5CYII=" alt="" draggable="false">
       setInterval(tickClock, 1000);
 
       // ── Shareable state links ──────────────────────────────────
-      // Append ?state=basic-active or ?state=standard-active to the URL
-      // to open the prototype straight into that "pass already purchased"
-      // state, instead of the default no-pass / buy screen.
+      // Append ?state=basic-active or ?state=standard-active to the URL to
+      // open the prototype straight into the Passes list with that pass
+      // already active, skipping the map screen and the "Save with a pass"
+      // onboarding sheet entirely.
       const _urlState = new URLSearchParams(window.location.search).get('state');
-      if (_urlState === 'basic-active')    updateActivePass('Basic');
-      if (_urlState === 'standard-active') updateActivePass('Standard');
-
-      // Small delay so the CSS transition plays visibly
-      setTimeout(openPassSheet, 300);
+      if (_urlState === 'basic-active' || _urlState === 'standard-active') {
+        updateActivePass(_urlState === 'basic-active' ? 'Basic' : 'Standard');
+        setTimeout(closeMapScreen, 300); // reveals #passes-page directly
+      } else {
+        // Small delay so the CSS transition plays visibly
+        setTimeout(openPassSheet, 300);
+      }
     });
 
 
